@@ -237,8 +237,8 @@ def export_results(
         "## Leads by Niche",
     ]
 
-    if not df.empty and "niche" in df.columns:
-        for niche, count in df["niche"].value_counts().items():
+    if not df_all.empty and "niche" in df_all.columns:
+        for niche, count in df_all["niche"].value_counts().items():
             lines.append(f"- {niche}: {count}")
     else:
         lines.append("- No leads accepted.")
@@ -264,7 +264,7 @@ def export_results(
     lines.append(f"- Total errors: {len(errors)}")
     if errors:
         for err in errors[:10]:
-            lines.append(f"  - `{err.get('url', '')}`: {err.get('error', '')}`")
+            lines.append(f"  - `{err.get('url', '')}`: {err.get('error', '')}")
         if len(errors) > 10:
             lines.append(f"  - ... and {len(errors) - 10} more")
 
