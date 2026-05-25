@@ -42,7 +42,7 @@ A stealthy, MX-verifying lead scraper configurable for any country or niche.
 ### Quick Install
 
 ```bash
-git clone https://github.com/yourusername/leadforge.git
+[git clone https://github.com/yourusername/leadforge.git](https://github.com/Shahzaibzah00r/leadforge.git)
 cd leadforge
 
 # Create virtual environment
