@@ -15,7 +15,7 @@ check:
 	@echo "==> Running ruff..."
 	.venv/bin/ruff check src tests
 	@echo "==> Running mypy..."
-	.venv/bin/mypy src/arizona_leads --ignore-missing-imports
+	.venv/bin/mypy src/leadforge --ignore-missing-imports
 	@echo "==> All checks passed."
 
 # Auto-fix formatting and linting issues

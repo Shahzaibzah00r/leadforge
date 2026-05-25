@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Entry-point shim: python -m arizona_leads"""
+"""Entry-point shim: python -m leadforge"""
 
 import sys
 

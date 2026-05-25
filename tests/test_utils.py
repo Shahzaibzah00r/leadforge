@@ -5,7 +5,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from arizona_leads.utils import (
+from leadforge.utils import (
     matches_niche,
     normalize_domain,
     normalize_phone,

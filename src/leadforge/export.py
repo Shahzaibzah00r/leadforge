@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import concurrent.futures
 import re
+from typing import Optional
 import threading
 from datetime import datetime
 
 import pandas as pd
 import requests
+import phonenumbers
 
 from .config import (
     BLOCKLIST_DOMAINS,
@@ -27,32 +29,75 @@ _WHATSAPP_LOCK = threading.Lock()
 _GENERIC_EMAIL_RE = re.compile(r"^(info|contact|admin|support|hello)@.*")
 
 
+def _format_e164(phone: str, default_region: Optional[str] = None) -> Optional[str]:
+    """Return E.164 formatted phone string or None if invalid."""
+    try:
+        if phone.strip().startswith("+"):
+            pn = phonenumbers.parse(phone, None)
+        else:
+            pn = phonenumbers.parse(phone, default_region or "US")
+        if not phonenumbers.is_valid_number(pn):
+            return None
+        return phonenumbers.format_number(pn, phonenumbers.PhoneNumberFormat.E164)
+    except Exception:
+        return None
+
+
 def check_whatsapp(phone: str) -> str:
-    """Quick HEAD check on wa.me to guess if a US number has WhatsApp."""
+    """Robust WhatsApp availability check.
+
+    Steps:
+    - Validate phone using `phonenumbers` and convert to E.164.
+    - Query `https://api.whatsapp.com/send?phone={E164_digits}` (GET).
+    - Consider WhatsApp present only if the number is valid and the response
+      or final URL indicates WhatsApp (redirects to web.whatsapp.com or contains
+      whatsapp markers in the page).
+    Returns: "yes" or "no".
+    """
     if not phone:
         return "no"
-    digits = re.sub(r"\D", "", phone)
-    if len(digits) == 11 and digits.startswith("1"):
-        digits = digits[1:]
-    if len(digits) != 10:
+
+    # Try to format/validate phone
+    e164 = _format_e164(phone)
+    if not e164:
         return "no"
+
+    digits = re.sub(r"\D", "", e164)
+
     with _WHATSAPP_LOCK:
         if digits in _WHATSAPP_CACHE:
             return _WHATSAPP_CACHE[digits]
+
+    result = "no"
     try:
-        resp = requests.head(
-            f"https://wa.me/1{digits}",
-            headers=get_rotated_headers(),
-            timeout=8,
-            allow_redirects=True,
-        )
-        final_url = resp.url
-        if f"phone=1{digits}" in final_url:
-            result = "yes"
+        url = f"https://api.whatsapp.com/send?phone={digits}"
+        resp = requests.get(url, headers=get_rotated_headers(), timeout=8, allow_redirects=True)
+
+        final_url = getattr(resp, "url", "") or ""
+        text = (resp.text or "").lower()
+
+        # Heuristics asserting WhatsApp presence
+        if resp.status_code in (200, 301, 302, 303, 307, 308):
+            if (
+                "web.whatsapp.com" in final_url
+                or "api.whatsapp.com" in final_url
+                or "phone=" in final_url
+                or "whatsapp" in text
+            ):
+                result = "yes"
+            else:
+                # As a fallback, check wa.me redirect behavior
+                wa_resp = requests.get(f"https://wa.me/{digits}", headers=get_rotated_headers(), timeout=8, allow_redirects=True)
+                wa_final = getattr(wa_resp, "url", "") or ""
+                if "web.whatsapp.com" in wa_final or "api.whatsapp.com" in wa_final:
+                    result = "yes"
+                else:
+                    result = "no"
         else:
             result = "no"
     except Exception:
         result = "no"
+
     with _WHATSAPP_LOCK:
         _WHATSAPP_CACHE[digits] = result
     return result

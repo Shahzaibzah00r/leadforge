@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "arizona-leads-scraper"
+name = "leadforge"
 version = "0.2.0"
-description = "Scrape Arizona business leads from chamber directories and search engines"
+description = "Stealth business lead scraper with MX verification. Works for any country, any niche."
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
@@ -20,16 +20,17 @@ dependencies = [
     "fake-useragent>=1.4.0",
     "dnspython>=2.4.0",
     "curl-cffi>=0.7.0",
+    "phonenumbers>=8.13.0",
 ]
 
 [project.scripts]
-arizona-leads = "arizona_leads.cli:main"
+leadforge = "leadforge.cli:main"
 
 [project.optional-dependencies]
 dev = ["pytest", "ruff", "mypy"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/arizona_leads"]
+packages = ["src/leadforge"]
 
 [dependency-groups]
 dev = [

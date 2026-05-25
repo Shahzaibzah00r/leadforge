@@ -5,7 +5,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from arizona_leads.extractors import (
+from leadforge.extractors import (
     extract_address_from_text,
     extract_emails,
     extract_phones,

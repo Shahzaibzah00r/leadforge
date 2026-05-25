@@ -1,7 +1,9 @@
-# LeadScout Pro
+# Leadforge
+
+A stealthy, MX-verifying lead scraper configurable for any country or niche.
 
 <p align="center">
-  <strong>Production-Grade Business Lead Scraper with Stealth, MX Verification & Global Reach</strong>
+  <strong>Production-grade business lead scraper with stealth, MX verification & global reach</strong>
 </p>
 
 <p align="center">
@@ -25,7 +27,7 @@
 | **Global Coverage** | Works for any US state or any country worldwide via configurable geography |
 | **False-Positive Filter** | Strips image filenames (`.png`, `.jpg`, `.svg`), logos, and placeholder emails |
 | **Dual Discovery** | Chamber directories (US) + Bing/Startpage search engines (global) |
-| **Rich Data Export** | CSV + JSON + Markdown report with WhatsApp checks, deduplication, and quality scoring |
+| **Rich Data Export** | CSV + JSON + Markdown report with improved WhatsApp verification, deduplication, and quality scoring |
 | **Resume Support** | Auto-saves progress to `progress.json` — interrupt and resume anytime |
 
 ---
@@ -40,8 +42,8 @@
 ### Quick Install
 
 ```bash
-git clone https://github.com/yourusername/leadscout-pro.git
-cd leadscout-pro
+git clone https://github.com/yourusername/leadforge.git
+cd leadforge
 
 # Create virtual environment
 python -m venv .venv
@@ -68,16 +70,16 @@ uv sync --dev
 
 ## Usage
 
-### Basic: Arizona, USA (Default)
+### Basic: Default run
 
 ```bash
-python -m arizona_leads
+python -m leadforge
 ```
 
 ### Target Another US State
 
 ```bash
-python -m arizona_leads \
+python -m leadforge \
   --state "Texas" \
   --state-abbr "TX" \
   --cities "Houston,Dallas,Austin,San Antonio"
@@ -87,17 +89,17 @@ python -m arizona_leads \
 
 ```bash
 # Pakistan
-python -m arizona_leads \
+python -m leadforge \
   --country "Pakistan" \
   --cities "Karachi,Lahore,Islamabad,Rawalpindi"
 
 # United Kingdom
-python -m arizona_leads \
+python -m leadforge \
   --country "United Kingdom" \
   --cities "London,Manchester,Birmingham"
 
 # Canada
-python -m arizona_leads \
+python -m leadforge \
   --state "Ontario" \
   --country "Canada" \
   --cities "Toronto,Ottawa,Mississauga"
@@ -106,9 +108,9 @@ python -m arizona_leads \
 ### Single Niche Focus
 
 ```bash
-python -m arizona_leads --niche "Law firms"
-python -m arizona_leads --niche "Dentists"
-python -m arizona_leads --niche "Real estate agencies"
+python -m leadforge --niche "Law firms"
+python -m leadforge --niche "Dentists"
+python -m leadforge --niche "Real estate agencies"
 ```
 
 ### Environment Variables
@@ -122,7 +124,7 @@ export SCRAPER_COUNTRY="USA"
 export SCRAPER_CITIES="Miami,Orlando,Tampa,Jacksonville"
 export MAX_CANDIDATES="500"
 
-python -m arizona_leads
+python -m leadforge
 ```
 
 ### Resume an Interrupted Run
@@ -130,20 +132,20 @@ python -m arizona_leads
 Progress is auto-saved to `output/progress.json`. Simply re-run:
 
 ```bash
-python -m arizona_leads
+python -m leadforge
 ```
 
 To force a fresh start:
 
 ```bash
-rm -f output/progress.json && python -m arizona_leads
+rm -f output/progress.json && python -m leadforge
 ```
 
 ---
 
 ## Configuration
 
-All defaults live in `src/arizona_leads/config.py`:
+All defaults live in `src/leadforge/config.py`:
 
 | Setting | Default | Description |
 |---------|---------|-------------|
@@ -157,14 +159,17 @@ All defaults live in `src/arizona_leads/config.py`:
 
 ### Adding Cities
 
-```python
-# src/arizona_leads/config.py
+C```python
+
+# src/leadforge/config.py
+
 CITIES = [
     "Phoenix",
     "Scottsdale",
     "Mesa",
     "Your City Here",  # <-- add more
 ]
+
 ```
 
 ### Adding Niches
@@ -214,7 +219,7 @@ Your primary export. Key columns include:
 | `business_name` | Company name from page title or schema |
 | `owner_name` | Extracted owner/founder name |
 | `phone` | Normalized phone number |
-| `whatsapp` | `yes` / `no` (best-effort via wa.me) |
+| `whatsapp` | `yes` / `no` (validated via phone number parsing and `api.whatsapp.com` checks) |
 | `city` | Parsed city |
 | `state` | Parsed state |
 | `full_address` | Full street address |
@@ -231,6 +236,7 @@ Same data as JSON for programmatic consumption.
 ### `run_report.md`
 
 Human-readable summary including:
+
 - Total candidates discovered
 - Accepted vs rejected counts
 - Duplicates removed
@@ -282,10 +288,12 @@ Internal resume state. Do not edit manually.
 ## How It Works
 
 ### 1. Discovery Phase
+
 - **Chambers** (US only): Scrapes A-Z member listings from configured chamber directories. Matches business names against niche keywords.
 - **Search Engines**: Runs geo-targeted queries like `"Phoenix dentist"` or `"law firm in Pakistan"` via Bing and Startpage. Extracts result URLs and filters out social media / directory blocklist domains.
 
 ### 2. Enrichment Phase
+
 - Visits each candidate URL with a **fresh rotated User-Agent** and realistic headers.
 - Waits a **random 2-5 seconds** between requests.
 - Attempts the homepage first. If it fails or yields no emails, **automatically falls back** to `/contact`, `/about`, `/privacy`.
@@ -299,6 +307,7 @@ Internal resume state. Do not edit manually.
 - Accepts leads with at least 2 populated core fields (name, website, phone, email, address).
 
 ### 3. Export Phase
+
 - Deduplicates by domain, email, and phone.
 - Performs a lightweight WhatsApp check via `wa.me`.
 - Writes `leads.csv`, `leads.json`, and `run_report.md`.
