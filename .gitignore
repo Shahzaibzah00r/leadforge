@@ -1,0 +1,39 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Output data (do not commit scraped leads)
+output/
+*.zip
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Playwright
+node_modules/
+
+# uv / pyenv
+uv.lock
+.python-version
+
+# pytest
+.pytest_cache/
+.mypy_cache/
+
+# Coverage
+htmlcov/
+.coverage

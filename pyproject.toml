@@ -1,0 +1,39 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "arizona-leads-scraper"
+version = "0.2.0"
+description = "Scrape Arizona business leads from chamber directories and search engines"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "requests",
+    "beautifulsoup4",
+    "pandas",
+    "tqdm",
+    "playwright>=1.60.0",
+    "playwright-stealth",
+    "tldextract",
+    "lxml",
+    "fake-useragent>=1.4.0",
+    "dnspython>=2.4.0",
+    "curl-cffi>=0.7.0",
+]
+
+[project.scripts]
+arizona-leads = "arizona_leads.cli:main"
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff", "mypy"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/arizona_leads"]
+
+[dependency-groups]
+dev = [
+    "mypy>=2.1.0",
+    "pytest>=9.0.3",
+    "ruff>=0.15.14",
+]
